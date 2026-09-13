@@ -1,0 +1,119 @@
+name: Materialize hardened release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/materialize-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct and verify source bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat \
+            .bootstrap/chunk_00 \
+            .bootstrap/chunk_01 \
+            .bootstrap/chunk_02_03 \
+            .bootstrap/chunk_04_05 \
+            .bootstrap/chunk_06 \
+            .bootstrap/chunk_07 \
+            .bootstrap/chunk_08_09 \
+            .bootstrap/chunk_10_11 \
+            | base64 --decode > /tmp/source_bundle.tar.gz
+          echo 'd87b8ac3b34305130d124418598706c06ce316f05c0c3592c376b22c48a95649  /tmp/source_bundle.tar.gz' | sha256sum -c -
+          cp README.md /tmp/portfolio_README.md
+          tar -xzf /tmp/source_bundle.tar.gz -C .
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Rebuild final evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/01_build_policies.py
+          python scripts/02a_oos.py
+          python scripts/02b_stress.py
+          python scripts/02c_envelope_ablation.py
+          python scripts/03_returnables_packaging.py
+          python scripts/04_sensitivity_economics.py
+          python scripts/05_build_release_docs.py
+          cp /tmp/portfolio_README.md README.md
+          pytest -q | tee outputs/final_pytest.txt
+
+      - name: Build thesis PDF
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq texlive-latex-base texlive-latex-recommended texlive-fonts-recommended lmodern >/dev/null
+          mkdir -p outputs/latex_build_release
+          cd docs
+          pdflatex -interaction=nonstopmode -halt-on-error -output-directory=../outputs/latex_build_release technical_thesis.tex >/dev/null
+          pdflatex -interaction=nonstopmode -halt-on-error -output-directory=../outputs/latex_build_release technical_thesis.tex >/dev/null
+          cp ../outputs/latex_build_release/technical_thesis.pdf ../outputs/technical_thesis.pdf
+          cd ..
+          rm -rf outputs/latex_build_release
+
+      - name: Install permanent CI workflow
+        shell: bash
+        run: |
+          mkdir -p .github/workflows
+          cat > .github/workflows/ci.yml <<'YAML'
+          name: Tests
+          on:
+            push:
+              branches: [main]
+            pull_request:
+          jobs:
+            test:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                - uses: actions/setup-python@v5
+                  with:
+                    python-version: '3.11'
+                    cache: pip
+                - run: python -m pip install -r requirements.txt
+                - run: pytest -q
+          YAML
+
+      - name: Create release manifest and clean bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .bootstrap .pytest_cache __pycache__
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
+          rm -f .github/workflows/materialize-release.yml
+          find . -type f \
+            ! -path './.git/*' \
+            ! -path './RELEASE_MANIFEST.sha256' \
+            -print0 | sort -z | xargs -0 sha256sum > RELEASE_MANIFEST.sha256
+          sha256sum -c RELEASE_MANIFEST.sha256
+
+      - name: Commit materialized hardened release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Publish hardened automotive logistics release'
+          git push
