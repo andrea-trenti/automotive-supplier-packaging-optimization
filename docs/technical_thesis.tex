@@ -1,0 +1,344 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=24mm]{geometry}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\definecolor{navy}{RGB}{20,35,59}
+\definecolor{gray}{RGB}{95,105,115}
+\hypersetup{colorlinks=true,linkcolor=navy,urlcolor=navy,citecolor=navy}
+\pagestyle{fancy}\fancyhf{}\lhead{Automotive Supplier Packaging \& Inbound Logistics Optimization}\rhead{Final Technical Thesis}\cfoot{\thepage}
+\titleformat{\section}{\Large\bfseries\color{navy}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
+\setlength{\headheight}{14pt}\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+\begin{document}
+\pagenumbering{roman}
+\begin{titlepage}
+\centering
+\vspace*{2.3cm}
+{\Huge\bfseries\color{navy} Automotive Supplier Packaging\\[0.25cm]\& Inbound Logistics Optimization\par}
+\vspace{0.6cm}
+{\Large Technical Thesis - Final Release\par}
+\vspace{1.2cm}
+{\large Research-grade synthetic automotive inbound logistics and packaging optimization study\par}
+\vfill
+\begin{minipage}{0.84\textwidth}
+\centering
+\textbf{Final conclusion}\par\vspace{0.25cm}
+A robust 9\% saving against a credible baseline is much stronger than a fragile 40\% saving against a weak baseline.
+\end{minipage}
+\vfill
+{\small Synthetic study. No Ferrari/OEM data. No industrial validation claim.}\par
+\end{titlepage}
+\tableofcontents
+\listoffigures
+\clearpage\pagenumbering{arabic}
+\section{Executive summary}
+The final release closes the scientific work by testing whether the nominal economics survive a stronger comparator and a harder operating environment. The original weak-baseline comparison suggested approximately 40.2\% savings. That result is deliberately not used as the final headline. Smart Baseline B costs EUR 52.92M per year, the nominal joint policy costs EUR 47.86M per year, and robust Target+ costs EUR 47.98M per year. The resulting defensible saving is 9.33\% and the robustness premium over the nominal minimum is only 0.26\%.
+
+The final network contains 60 suppliers, 600 parts and 57 Target+ inbound routes. The packaging-frequency MILP closes with MIP gap 1.019e-15. The final release passes 42/42 automated tests. Physical validation covers payload, cube, pallet positions, cadence feasibility, route feasibility and returnable conservation.
+
+Target+ nominal critical fill is 99.9991\%, but P(at least one line stop) remains 6.7\%. Out of sample, critical fill is 99.9046\% and line-stop probability is 48.0\%. This deliberate separation of average service from tail interruption risk is central to the credibility case.
+
+\begin{table}[H]\centering\caption{Final policy comparison}\small
+\begin{tabular}{lrrrr}
+\toprule
+Policy & TLC (EUR M/y) & Critical fill (pct) & P(line stop) (pct) & CO2e (kt/y) \\
+\midrule
+Baseline A & 81.82 & 99.9913 & 60.0 & 3.337 \\
+Baseline B & 52.92 & 99.9926 & 75.0 & 3.884 \\
+Sequential & 51.25 & 99.9892 & 63.3 & 3.347 \\
+Nominal joint & 47.86 & 99.9912 & 70.0 & 3.347 \\
+Target+ robust & 47.98 & 99.9991 & 6.7 & 3.347 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]\centering\includegraphics[width=0.93\textwidth]{figures/final_01_policy_costs.png}\caption{Cost falsification from weak baseline to robust policy.}\end{figure}
+
+\section{Decision context and credibility boundary}
+Automotive inbound logistics is a coupled system: packaging changes container density and handling; density affects truck cube; replenishment cadence changes cycle stock and dock traffic; consolidation changes route economics and receiving synchronization; returnables create a reverse asset loop; and service protection changes premium freight and production-interruption exposure. Local optimization can therefore move cost from one ledger to another without creating system value.
+
+The decision question is: \textit{What packaging, shipment frequency, routing, consolidation and inventory policy minimizes total landed logistics cost while preserving line-side availability and resilience under uncertain demand and supplier performance?}
+
+This is a synthetic engineering study. Supplier locations, costs, reliability, part geometry, demand, packaging performance and disruption parameters are generated. External standards and research support method selection and terminology only. They do not validate the numerical result. The repository must not be described as a Ferrari/OEM model, industrially calibrated digital twin or validated forecast.
+
+\section{Research questions and evidence strategy}
+The final study evaluates five questions. First, whether coordinated packaging-frequency design has measurable value over sequential suboptimization. Second, how much of the original apparent saving survives a smart baseline. Third, whether a robust service policy can preserve most of the economics. Fourth, whether returnables remain attractive after closed-loop asset requirements. Fifth, whether lower cost and lower emissions necessarily move together.
+
+The evidence strategy is adversarial. Baseline A is retained to show why the early saving looked large. Baseline B is introduced to remove artificial baseline weakness. Target+ is selected on a training scenario set and then evaluated on unseen stochastic scenarios. Combined shocks are retained even when they cause failure. The model is considered stronger when a new layer falsifies a previous conclusion rather than automatically confirming it.
+
+\section{Synthetic network and data architecture}
+The synthetic network contains 60 suppliers and 600 part numbers over 365 calendar days. Vehicle-level production mix is exploded into correlated part demand rather than generated as independent part noise. Supplier records include distance, lead time, OTIF-related reliability and risk class. Parts include weight, volume, value, criticality, damage sensitivity and packaging compatibility. Packaging includes geometry, tare, payload, stackability, lifetime, cleaning, repair and reverse-logistics economics. Vehicles include payload, usable cube, pallet positions, trip cost, distance cost and WTW freight-emission factors.
+
+The final pipeline is staged. Policy generation is persisted before OOS, stress, returnable and financial experiments. This reduces operational coupling and makes each evidence layer independently rerunnable. The final source of truth is machine-readable in \texttt{outputs/final\_summary.json}.
+
+\section{Baseline engineering and the 40.2\% falsification}
+Baseline A uses direct shipping, current-style packaging and fixed/feasible frequency. Its annual modeled TLC is EUR 81.82M. It is deliberately simple and therefore not an adequate basis for a strong savings claim.
+
+Baseline B adds compatible packaging, supplier clustering, simple milk-runs and ROP inventory. It costs EUR 52.92M per year. The sequential policy costs EUR 51.25M. Nominal joint coordination reaches EUR 47.86M, while Target+ reaches EUR 47.98M.
+
+The robust saving versus Baseline B is 9.33\%. This is the central closure result. The lower number is scientifically stronger because the comparator performs meaningful logistics work rather than functioning as a straw man.
+
+\section{Packaging engineering and coordinated optimization}
+Package selection is constrained by geometry, weight, volume, package role and handling compatibility. The project explicitly corrected a failure in which the solver could exploit pallet-like packaging for small parts. Replenishment frequency is also subject to a minimum physical cadence derived jointly from annual supplier mass and cube.
+
+The exact optimization boundary is the packaging-frequency MILP. It assigns one feasible packaging candidate to each part and one cadence to each supplier, with annual shared supplier cube and payload constraints. Downstream milk-run construction remains a capacity-feasible heuristic; the repository does not claim globally optimal CVRPTW or IRP performance.
+
+Sequential design costs EUR 51.25M versus EUR 47.86M for nominal joint coordination. That represents a 6.62\% TLC reduction and answers the central research question about local versus coordinated optimization.
+
+\section{Physical vehicle and route feasibility}
+All Target+ routes respect payload, usable cube and pallet-position constraints. Mean cube utilization is 74.7\% versus mean weight utilization of 26.2\%, indicating a network that is much more cube-constrained than mass-constrained. This makes packaging density and container geometry first-order transport decisions.
+
+The final release stores 57 Target+ routes. Route durations are positive, feasibility flags pass, and final route validation reports zero issues. The closure test suite independently recalculates capacity against the vehicle master rather than trusting route utilization columns.
+
+\section{Receiving docks and congestion economics}
+The plant has finite receiving capacity. Dock scheduling records requested arrival, scheduled start, service, waiting and overtime. Dock-aware staggering prevents an otherwise efficient set of milk-runs from being accepted if they create unrealistic simultaneous receiving demand. Dock waiting and overtime are explicit TLC terms rather than dashboard-only KPIs.
+
+The final cost reconciliation therefore internalizes transport and receiving interaction. This matters because route distance alone is not a sufficient objective when a plant can trade fewer kilometers for concentrated arrivals and expensive dock congestion.
+
+\section{Inventory policy, criticality and service tails}
+Inventory includes cycle, safety and pipeline stock. Safety stock reflects stochastic demand and lead time and is calibrated by criticality. Target+ is selected with a 1.15 safety-stock multiplier and 1.35 critical-part multiplier rather than broad transport-frequency inflation.
+
+\begin{figure}[H]\centering\includegraphics[width=0.90\textwidth]{figures/final_02_nominal_service_tail.png}\caption{Average critical fill and line-stop tail risk are deliberately reported together.}\end{figure}
+
+Nominal Target+ critical fill is 99.9991\%, yet P(at least one line stop) remains 6.7\%. This demonstrates why a service metric close to 100\% cannot be used to imply zero production risk. The final release reports fill rate, line-stop probability, event counts, premium freight and shortage-duration tails separately.
+
+\section{Robust Target+ policy}
+The robust candidate screen applies scenario-based service evidence. The selected candidate satisfies the training requirement P(critical fill >= 99.9\%) >= 95\%, with observed training probability 100\%. Its annual cost is only 0.26\% above the nominal joint minimum.
+
+The robustness decision is therefore not a generic preference for more buffer. It is an explicit trade: approximately EUR 126.3k per year of added cost to materially improve critical service and tail exposure in the modeled uncertainty set.
+
+\section{Out-of-sample validation}
+Target+ and the nominal joint policy are evaluated on unseen scenario draws covering nominal conditions, correlated supply risk, demand uplift, carrier-capacity shortage, container shortage and a combined shock.
+
+\begin{figure}[H]\centering\includegraphics[width=0.94\textwidth]{figures/final_03_oos_service.png}\caption{Out-of-sample critical fill rate by scenario.}\end{figure}
+
+Aggregated OOS critical fill for Target+ is 99.9046\%. OOS line-stop probability is 48.0\% versus 87.3\% for nominal. The policy therefore improves downside behavior on unseen draws, but does not eliminate severe failure regions.
+
+\section{Stress tests, ablation and resilience envelope}
+The final stress suite includes +20\% demand, +50\% fuel cost, critical supplier disruption, container shortage, carrier-capacity shortage and a combined shock. Target+ combined-shock critical fill falls to 97.34\% and line-stop probability is 100\%. The nominal joint policy falls further to 96.73\%.
+
+Ablation shows that removing carrier-capacity pressure or demand shock creates the largest recovery, with returnable availability also material. This supports the final tail-risk statement: carrier capacity + demand shock + container availability is the main combined resilience risk.
+
+\begin{figure}[H]\centering\includegraphics[width=0.90\textwidth]{figures/final_05_resilience_envelope.png}\caption{Target+ service resilience envelope under demand uplift.}\end{figure}
+
+The scenario-based service criterion survives through approximately +20\% demand uplift but fails by +30\%. This envelope is a synthetic decision boundary, not a guaranteed industrial capacity margin.
+
+\section{Returnable-container closed loop}
+Returnables move through supplier, loaded transit, plant, empty transit, cleaning/repair and loss states. The theoretical minimum fleet is 129,888 containers. The operational requirement is 150,272, including safety allowance and attrition.
+
+\begin{figure}[H]\centering\includegraphics[width=0.84\textwidth]{figures/final_06_returnable_fleet.png}\caption{Theoretical versus operational returnable-container fleet.}\end{figure}
+
+The closed-loop history contains 95,220 part-day states and passes conservation on every state. Lost containers are explicit and never silently regenerated. Median returnable/expendable break-even is 69.4 cycles. The final fleet asset value is approximately EUR 33.03M.
+
+\section{TTS/TTR and supplier resilience}
+Time to Survive is estimated from the most constrained part-level inventory coverage within each supplier portfolio. Time to Recover is a synthetic recovery proxy derived from lead time and risk class. These values are not measured supplier recovery performance.
+
+The final analysis flags 28 suppliers with TTS < TTR. The maximum TTR-TTS gap is 5.73 days. This indicates where current inventory protection would be exhausted before modeled recovery and supports targeted contingency actions.
+
+\section{CO2 accounting and trade-off}
+Transport GHG accounting follows an activity-based tonne-kilometer structure consistent with ISO 14083 / GLEC methodology. Default WTW intensity factors are methodological inputs, not carrier-specific measurements.
+
+\begin{figure}[H]\centering\includegraphics[width=0.84\textwidth]{figures/final_04_co2_baselines.png}\caption{Transport CO2e comparison depends on the baseline.}\end{figure}
+
+Target+ emits 3.347 ktCO2e/year in the synthetic network. That is -13.8\% relative to Baseline B but +0.3\% relative to Baseline A. The final documentation therefore never uses the generic claim that optimization reduces emissions.
+
+Packaging-lifecycle emissions remain a separate synthetic proxy because verified EPD and cleaning-energy data are unavailable.
+
+\section{Total landed cost reconciliation}
+The TLC ledger contains transport, packaging material, cleaning/repair, reverse logistics, inventory, handling, damage, dock waiting, dock overtime, premium freight and line-stop exposure. Every policy is reconciled exactly to the sum of these components within floating-point tolerance.
+
+\begin{figure}[H]\centering\includegraphics[width=0.94\textwidth]{figures/final_08_cost_bridge.png}\caption{Accounting bridge from Baseline B to Target+. Negative bars are added Target+ cost.}\end{figure}
+
+The bridge is an accounting decomposition, not a causal attribution. It avoids double counting by placing each cost difference in one ledger component and verifying that the bridge total equals the full TLC delta.
+
+\section{Investment economics}
+The robust annual operating saving versus Baseline B is approximately EUR 4.94M. Incremental capital includes additional returnable assets relative to Baseline B plus an explicit synthetic allowance for tracking and implementation enablers.
+
+The financial model uses 4,096 Monte Carlo draws. Five-year NPV is P5 EUR 3.15M, P50 EUR 6.39M, and P95 EUR 9.49M. Median payback is 2.39 years.
+
+\begin{figure}[H]\centering\includegraphics[width=0.90\textwidth]{figures/final_07_npv_distribution.png}\caption{Five-year probabilistic NPV under the synthetic uncertainty range.}\end{figure}
+
+P(NPV > 0) is 100\% inside this modeled range. This is explicitly not industrial certainty. It means that the selected synthetic distribution does not cross the zero-NPV boundary.
+
+\section{Sensitivity and value of information}
+PRCC screening identifies transport cost, inventory holding rate and returnable turnaround as the strongest total-cost drivers within the modeled ranges. The purpose of this screen is not to produce a decorative sensitivity chart; it identifies which real measurements should be prioritized before an industrial pilot.
+
+The highest-value data are actual lane fill and carrier rate cards, actual inventory holding/working-capital cost, returnable turnaround/loss/repair history, vehicle-mix variability, supplier lead-time/OTIF distributions and packaging damage history. This is a decision-priority ranking rather than a monetary EVPI claim.
+
+\section{Verification, validation and release QA}
+The final automated suite passes 42/42 tests. Release-specific checks include TLC component reconciliation, kg-to-tonne conversion, CO2 unit formula, pallet-position feasibility, returnable state conservation, OOS policy comparison, chance-service evidence, combined-shock failure visibility and financial Monte Carlo sample integrity.
+
+The final runtime benchmark at 600 parts records approximately 0.382 s for the MILP, 0.104 s for routing and 0.122 s for a five-replication 90-day simulation benchmark on the release environment.
+
+The credibility chain is requirement -> model -> code -> test -> experiment -> output -> decision. The largest remaining validation gap is empirical, not computational.
+
+\section{Limitations and context of use}
+The model is synthetic and should not be used for real capital authorization without calibration. The route layer remains heuristic downstream of the exact packaging-frequency block. Inventory is daily rather than sub-daily. Packaging does not implement complete 3-D load-securing physics. TTS/TTR are proxies. GLEC factors are defaults. Cost ownership and Incoterm effects are not fully allocated.
+
+These boundaries are kept visible because the stop rule is deliberate: adding more algorithms would not solve the largest problem, which is lack of empirical validation.
+
+\section{Industrial data required for validation}
+A real pilot should prioritize carrier invoices and lane-fill telemetry; supplier ASN/receipt timestamps; packaging drawings and actual pack quantities; dock timestamps; container scan, dwell, loss and repair history; and premium-freight/line-stop records. Those data would allow parameter fitting and predictive validation against real service, utilization and cost outcomes.
+
+\section{Management recommendation and conclusion}
+The absolute nominal minimum is not the preferred policy. Target+ costs only 0.26\% more than the nominal joint solution while materially improving downside service. The remaining severe failure mechanism is the combined carrier-capacity, demand and container-availability shock; this should be the priority for contingency planning and data collection.
+
+The final conclusion is intentionally conservative and is the central result of the project: \textbf{a robust 9\% saving against a credible baseline is much stronger than a fragile 40\% saving against a weak baseline.}
+
+\appendix
+\section{Research basis}
+The methodological basis includes ISO 14083:2023 for transport-chain GHG accounting; the Smart Freight Centre GLEC Framework for freight activity accounting; AIAG returnable-container and packaging guidance; MIT CTL inbound-logistics research; MIT supply-chain resilience work on TTS/TTR; and recent operations-research literature on dock-capacity, time-window routing and disruption mitigation. Full source notes and URLs are retained in \texttt{docs/research\_basis.md}. These sources support model design only, not the synthetic numerical outputs.
+
+\section{Final numerical source of truth}
+The machine-readable final summary is \texttt{outputs/final\_summary.json}. The final QA report is \texttt{outputs/FINAL\_QA\_REPORT.md}. Processed tables are under \texttt{data/processed/}. The two final release archives include SHA-256 manifests generated after packaging.
+
+
+\section{Mathematical formulation summary}
+The reduced exact model uses part-package assignment variables $x_{ip}$ and supplier-frequency variables $z_{sf}$. Each part receives exactly one feasible package and each supplier exactly one cadence:
+\[
+\sum_p x_{ip}=1 \quad \forall i, \qquad \sum_f z_{sf}=1 \quad \forall s.
+\]
+Packaging capacity is the minimum of volume, weight, geometry and handling screens. Supplier cadence must move both annual gross cube and material weight:
+\[
+\sum_{i\in I_s}\sum_p C_{ip}V_p x_{ip} \le 50\eta_V V_{truck}\sum_f f z_{sf},
+\]
+\[
+\sum_{i\in I_s} D_iw_i \le 50\eta_W W_{truck}\sum_f f z_{sf}.
+\]
+Inventory uses lead-time demand plus criticality-dependent safety stock. With demand mean $\mu_d$, demand standard deviation $\sigma_d$, lead-time mean $\mu_L$ and lead-time standard deviation $\sigma_L$:
+\[
+\sigma_{LT}=\sqrt{\mu_L\sigma_d^2+\mu_d^2\sigma_L^2},\qquad SS=z\sigma_{LT},\qquad ROP=\mu_d\mu_L+SS.
+\]
+Total landed logistics cost is reconciled as:
+\[
+TLC=T+P+I+H+D+R+PF+Dock+LS,
+\]
+where the symbols denote transport, packaging, inventory, handling, damage, reverse logistics, premium freight, dock cost and line-stop exposure. Cleaning and repair are shown separately in the ledger and are included in packaging-system economics.
+
+\section{Detailed policy cost ledger}
+\begin{longtable}{lrrrr}
+\toprule
+Component & Baseline B & Sequential & Nominal joint & Target+ \\
+\midrule
+\endfirsthead
+\toprule
+Component & Baseline B & Sequential & Nominal joint & Target+ \\
+\midrule
+\endhead
+Transport & 6.128 & 4.745 & 5.334 & 5.334 \\
+Packaging material & 13.724 & 13.724 & 9.481 & 9.481 \\
+Cleaning / repair & 2.072 & 2.072 & 2.632 & 2.632 \\
+Reverse logistics & 2.790 & 2.790 & 3.320 & 3.320 \\
+Inventory & 3.141 & 3.310 & 3.331 & 3.548 \\
+Handling & 20.931 & 20.931 & 20.281 & 20.281 \\
+Damage & 0.222 & 0.222 & 0.203 & 0.203 \\
+Dock waiting & 3.483 & 2.902 & 3.034 & 2.936 \\
+Dock overtime & 0.096 & 0.291 & 0.303 & 0.124 \\
+Premium freight & 0.310 & 0.240 & 0.249 & 0.119 \\
+Line-stop exposure & 0.025 & 0.025 & 0.022 & 0.007 \\
+\midrule
+Total TLC & 52.922 & 51.252 & 47.858 & 47.984 \\
+\bottomrule
+\end{longtable}
+\textit{Units: EUR million per year. Values are rounded for presentation; machine-readable CSV tables contain the reconciled full precision.}
+
+\section{Out-of-sample scenario table}
+\begin{longtable}{llrrr}
+\toprule
+Policy & Scenario & Critical fill (\%) & P(line stop) (\%) & Mean disruption cost (EUR k) \\
+\midrule
+\endfirsthead
+\toprule
+Policy & Scenario & Critical fill (\%) & P(line stop) (\%) & Mean disruption cost (EUR k) \\
+\midrule
+\endhead
+Nominal joint & carrier & 99.8737 & 100.0 & 1205.2 \\
+Nominal joint & combined & 98.9648 & 100.0 & 7338.3 \\
+Nominal joint & container & 99.9611 & 100.0 & 711.7 \\
+Nominal joint & correlated & 99.9932 & 80.0 & 282.1 \\
+Nominal joint & demand10 & 99.9628 & 96.0 & 1070.6 \\
+Nominal joint & nominal & 99.9914 & 48.0 & 262.2 \\
+Target+ robust & carrier & 99.9680 & 96.0 & 654.5 \\
+Target+ robust & combined & 99.4658 & 100.0 & 5265.8 \\
+Target+ robust & container & 99.9973 & 56.0 & 387.8 \\
+Target+ robust & correlated & 100.0000 & 0.0 & 125.8 \\
+Target+ robust & demand10 & 99.9963 & 36.0 & 586.4 \\
+Target+ robust & nominal & 100.0000 & 0.0 & 121.5 \\
+\bottomrule
+\end{longtable}
+
+\section{Stress-suite evidence}
+\begin{longtable}{llrrr}
+\toprule
+Policy & Scenario & Annual cost (EUR M) & Critical fill (\%) & P(line stop) (\%) \\
+\midrule
+\endfirsthead
+\toprule
+Policy & Scenario & Annual cost (EUR M) & Critical fill (\%) & P(line stop) (\%) \\
+\midrule
+\endhead
+Nominal joint & carrier capacity shortage & 51.04 & 99.4150 & 100.0 \\
+Nominal joint & combined shock & 65.77 & 96.7306 & 100.0 \\
+Nominal joint & container shortage & 48.88 & 99.9326 & 100.0 \\
+Nominal joint & critical supplier disruption & 47.85 & 99.9932 & 50.0 \\
+Nominal joint & demand plus 20pct & 50.61 & 99.8854 & 100.0 \\
+Nominal joint & fuel plus 50pct & 50.53 & 99.9898 & 66.7 \\
+Nominal joint & nominal & 47.86 & 99.9898 & 66.7 \\
+Target+ robust & carrier capacity shortage & 50.07 & 99.7203 & 100.0 \\
+Target+ robust & combined shock & 63.26 & 97.3423 & 100.0 \\
+Target+ robust & container shortage & 48.66 & 99.9779 & 80.0 \\
+Target+ robust & critical supplier disruption & 47.99 & 99.9999 & 3.3 \\
+Target+ robust & demand plus 20pct & 49.70 & 99.9733 & 93.3 \\
+Target+ robust & fuel plus 50pct & 50.65 & 99.9997 & 10.0 \\
+Target+ robust & nominal & 47.98 & 99.9997 & 10.0 \\
+\bottomrule
+\end{longtable}
+The table preserves failure evidence. In particular, the combined shock drives line-stop probability to 100\% for both nominal and Target+ policies, while Target+ retains a higher critical fill rate.
+
+\section{Ablation evidence}
+\begin{longtable}{lrrr}
+\toprule
+Ablation & Critical fill (\%) & P(line stop) (\%) & Mean disruption cost (EUR k) \\
+\midrule
+\endfirsthead
+\toprule
+Ablation & Critical fill (\%) & P(line stop) (\%) & Mean disruption cost (EUR k) \\
+\midrule
+\endhead
+full model & 99.3971 & 100.0 & 5569.8 \\
+without supplier correlation & 99.5324 & 100.0 & 4994.7 \\
+without stochastic lead time & 99.5103 & 100.0 & 4817.6 \\
+without returnable constraint & 99.7990 & 100.0 & 3429.9 \\
+without carrier constraint & 99.9631 & 100.0 & 2267.2 \\
+without supplier outage & 99.4157 & 100.0 & 5639.3 \\
+without demand shock & 99.8954 & 100.0 & 2056.1 \\
+\bottomrule
+\end{longtable}
+Ablation is interpreted directionally rather than as causal identification. Its role is to show which modeled mechanisms create the largest decision changes under the common combined-stress structure.
+
+\section{Returnable conservation evidence}
+The closed-loop simulation records supplier inventory, plant inventory, loaded transit, empty transit, cleaning/repair, lost containers and live fleet. For every recorded state:
+\[
+AtSupplier + AtPlant + LoadedTransit + EmptyTransit + Repair + Lost = InitialFleet.
+\]
+The final release verifies this identity across all 95,220 part-day states. The operational fleet exceeds the theoretical minimum for every returnable part, with aggregate values of 150,272 and 129,888 containers respectively.
+
+\section{Release test inventory}
+The 42 automated tests are divided into five groups: data and physical integrity; optimization and solver evidence; inventory/risk logic; stochastic simulation and reproducibility; and final-release reconciliation. Release-specific tests independently reconstruct TLC, recalculate kg-to-tonne conversion and route CO2e, verify pallet capacity, assert returnable conservation, compare Target+ and nominal OOS tail risk, verify the chance-service screen, retain the combined-shock failure region, check the 4,096-draw finance layer and confirm the 28 TTS<TTR suppliers.
+
+A passing test suite is necessary but not sufficient for industrial validity. Tests establish software and calculation credibility inside the declared synthetic model boundary; they cannot substitute for plant calibration or external validation.
+
+\section{Reproducibility and release artifacts}
+The final repository can be reproduced in stages: policy build, OOS evaluation, stress suite, returnable analysis, sensitivity/economics, then pytest. Each stage writes CSV/JSON artifacts before the next stage. Final release archives are tested for ZIP integrity and are accompanied by SHA-256 hashes. The GitHub release omits large or redundant generated artifacts only when they can be regenerated from the included source and configuration; the FULL archive is the master source of truth.
+
+\end{document}

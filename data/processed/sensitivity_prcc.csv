@@ -1,0 +1,13 @@
+input,prcc,p_value,response
+transport_cost,0.9282031912020545,2.2286821908772923e-21,total_cost_eur
+holding_rate,0.9175467954549812,4.784316670632076e-20,total_cost_eur
+container_turnaround,0.8488218954520919,2.5279651640562382e-14,total_cost_eur
+demand_variability,0.20407034805043672,0.16414576333713093,total_cost_eur
+supplier_reliability,0.11968027496452095,0.41780753312433216,total_cost_eur
+damage_probability,0.09974810052413535,0.4999655983679157,total_cost_eur
+holding_rate,-0.284471116473079,0.05004043942321462,critical_fill_rate
+demand_variability,0.1021271956122709,0.48974388120664086,critical_fill_rate
+transport_cost,0.0907849420758988,0.5394359187937856,critical_fill_rate
+container_turnaround,0.01024849207796208,0.944883145835167,critical_fill_rate
+supplier_reliability,-0.008986016124805582,0.9516641961662768,critical_fill_rate
+damage_probability,-0.008317578268186764,0.95525593157791,critical_fill_rate

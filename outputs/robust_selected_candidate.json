@@ -1,0 +1,20 @@
+{
+  "candidate_id": 5.0,
+  "frequency_scale": 1.0,
+  "risk_frequency_boost": 0.0,
+  "safety_multiplier": 1.15,
+  "critical_safety_multiplier": 1.35,
+  "annual_cost_eur": 48178537.325197496,
+  "annual_co2e_kg": 3346666.3894221615,
+  "inventory_value_eur": 16155337.311153604,
+  "fill_rate": 0.9984181327038665,
+  "critical_fill_rate": 0.9999766725539944,
+  "chance_critical_ge_999": 1.0,
+  "line_stop_probability": 0.3333333333333333,
+  "mean_line_stop_events": 0.5666666666666667,
+  "p95_shortage_duration_days": 3.0,
+  "cvar95_disruption_eur": 608221.8790898006,
+  "mean_cube_utilization": 0.7474292735614034,
+  "mean_weight_utilization": 0.26173558839667643,
+  "robust_score": 48269770.60706097
+}

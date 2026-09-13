@@ -1,0 +1,4 @@
+vehicle_id,vehicle_type,max_payload_kg,usable_cube_m3,pallet_positions,fixed_cost_eur_trip,variable_eur_km,glec_wtw_gco2e_tkm
+V01,rigid_18t,9000,42,14,1.55,0.78,195.0
+V02,hgv_26t,15000,68,24,1.95,0.92,115.0
+V03,tractor_40t,24000,90,33,2.25,1.04,115.0

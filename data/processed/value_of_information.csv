@@ -1,0 +1,7 @@
+real_data_item,linked_parameter,priority_score,decision_use
+actual lane fill and carrier rates,transport_cost,0.9282031912020545,transport savings and consolidation value
+actual holding-rate / working-capital data,holding_rate,0.9175467954549812,frequency versus inventory trade-off
+returnable turnaround / loss history,container_turnaround,0.8488218954520919,returnable fleet and reverse-loop economics
+vehicle-mix / production schedule variability,demand_variability,0.3061975436627076,robust stock and service requirements
+supplier lead-time / OTIF distributions,supplier_reliability,0.12866629108932653,shortage and resilience calibration
+packaging damage history,damage_probability,0.09974810052413535,packaging frontier and quality cost

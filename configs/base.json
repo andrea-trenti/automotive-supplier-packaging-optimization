@@ -1,0 +1,17 @@
+{
+  "seed": 20260912,
+  "n_suppliers": 60,
+  "n_parts": 600,
+  "n_days": 365,
+  "mean_vehicles_per_day": 58,
+  "holding_rate": 0.22,
+  "target_cycle_service": 0.985,
+  "premium_freight_multiplier": 4.5,
+  "line_stop_cost_per_hour": 18000,
+  "line_stop_hours_per_event": 0.75,
+  "diesel_hgv_wtw_g_per_tkm": 115.0,
+  "working_days_per_year": 250,
+  "truck_speed_kmph": 55.0,
+  "dock_service_min_base": 18,
+  "n_receiving_docks": 5
+}

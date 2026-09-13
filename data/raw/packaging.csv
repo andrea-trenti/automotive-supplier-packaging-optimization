@@ -1,0 +1,7 @@
+packaging_id,packaging_type,internal_l_m,internal_w_m,internal_h_m,tare_kg,max_payload_kg,max_manual_gross_kg,returnable,purchase_cost_eur,lifetime_cycles,base_damage_rate,handling_cost_eur,internal_volume_m3,stackability,cleaning_eur_cycle,repair_eur_cycle,reverse_logistics_eur_cycle
+PK01,small_tote,0.4,0.3,0.22,1.8,18,18.0,True,120.0,220,0.004,2.2,0.0264,4,0.14,0.08,0.3
+PK02,large_tote,0.6,0.4,0.32,3.4,35,35.0,True,185.0,220,0.005,2.8,0.0768,3,0.18,0.12,0.45
+PK03,klt_like,0.6,0.4,0.28,2.7,30,30.0,True,150.0,250,0.0035,2.4,0.0672,4,0.16,0.1,0.38
+PK04,carton,0.55,0.38,0.3,0.8,24,20.0,False,2.8,1,0.012,2.0,0.0627,2,0.0,0.0,0.0
+PK05,pallet,1.2,0.8,1.0,24.0,650,999.0,False,16.0,1,0.01,4.5,0.96,2,0.0,0.0,0.0
+PK06,returnable_rack,1.45,1.05,1.25,95.0,900,999.0,True,1250.0,350,0.002,5.5,1.90312,2,0.75,1.6,2.1
